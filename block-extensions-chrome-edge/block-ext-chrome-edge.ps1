@@ -1,3 +1,4 @@
+# Wallace Alves
 # Se o script rodar em um determinado momento que um usuario nao tenha seu perfil criado ainda
 # o script só ira remover as permissoes de usuarios anteriormente criados, portanto criei o bloco de comandos abaixo
 # para schedullar o script para todo usuario que logar no sistema
