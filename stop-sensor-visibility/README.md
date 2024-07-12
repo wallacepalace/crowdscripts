@@ -34,6 +34,15 @@ sudo yum install -y audit curl dbus-python python3-systemd screen
 sudo dnf install -y audit curl dbus-python python3-systemd screen
 ```
 
+### Arch/Manjaro
+```bash
+sudo pamac install audit curl python-dbus python-systemd screen
+```
+Ou
+```bash
+sudo pacman -Syu audit curl python-dbus python-systemd screen
+```
+
 ## Variáveis que Precisam Ser Alteradas
 
 - Atualize a URL do webhook para a sua URL específica no Microsoft Teams:
