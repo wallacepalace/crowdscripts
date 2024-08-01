@@ -11,7 +11,7 @@ $GroupId = "cf5b2566f5f0456097ef65f6c07db494" # Segue esse padrão
 $HostIds = Get-FalconHost -All -Filter "groups:'$GroupId'"
 
 # Roda um script PERSONALIZADO que está no seu "Response Script and Files"
-#Invoke-FalconRTR -Command runscript -Arguments "-CloudFile='wallace-da-massa'" -Verbose -HostIds $HostIds -Timeout 90 | Export-Csv 'wallace.csv'
+Invoke-FalconRTR -Command runscript -Arguments "-CloudFile='wallace-da-massa'" -Verbose -HostIds $HostIds -Timeout 90 | Export-Csv 'wallace.csv'
 
 # Roda o cswindiag (comando de RTR)
-Invoke-FalconCommand -SessionID $session.session_id -Command 'runscript' -Arguments @{script_name='cswindiag'} -Verbose -HostIds $HostIds -Timeout 90 | Export-Csv 'cswindiag-result.csv'
+#Invoke-FalconCommand -SessionID $session.session_id -Command 'runscript' -Arguments @{script_name='cswindiag'} -Verbose -HostIds $HostIds -Timeout 90 | Export-Csv 'cswindiag-result.csv'
