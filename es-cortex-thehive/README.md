@@ -1,4 +1,4 @@
-# Docker Compose para a Comunidade
+# Elastic + Cortex + TheHive
 
 Postar esse compose surgiu da necessidade de ajudar a comunidade de alguma forma com respostas a incidentes e integrações com CrowdStrike e outras ferramentas de segurança.
 
