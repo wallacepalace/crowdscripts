@@ -1,0 +1,411 @@
+# Wallace Alves
+# OpenCTI
+
+version: '3'
+
+services:
+  redis:
+    image: redis:7.2.5
+    restart: always
+    volumes:
+      - redisdata:/data
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    environment:
+      # Comment-out the line below for a cluster of multiple nodes
+      - discovery.type=single-node
+      # Uncomment the line below below for a cluster of multiple nodes
+      # - cluster.name=docker-cluster
+      - xpack.ml.enabled=false
+      - xpack.security.enabled=false
+      - thread_pool.search.queue_size=5000
+      - logger.org.elasticsearch.discovery="ERROR"
+      - "ES_JAVA_OPTS=-Xms${ELASTIC_MEMORY_SIZE} -Xmx${ELASTIC_MEMORY_SIZE}"
+    restart: always
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+
+  minio:
+    image: minio/minio:RELEASE.2024-05-28T17-19-04Z
+    volumes:
+      - s3data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server /data
+    restart: always
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 4G
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - RABBITMQ_NODENAME=rabbit01@localhost
+#      - HTTP_PROXY=http://seuproxy:8080
+#      - HTTPS_PROXY=http://seuproxy:8080
+    volumes:
+      - amqpdata:/var/lib/rabbitmq
+    restart: always
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+
+  opencti:
+    image: opencti/platform:6.1.12
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=8096
+      - APP__PORT=8080
+      - APP__BASE_URL=${OPENCTI_BASE_URL}
+      - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
+      - APP__ADMIN__PASSWORD=${OPENCTI_ADMIN_PASSWORD}
+      - APP__ADMIN__TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - APP__APP_LOGS__LOGS_LEVEL=error
+      - REDIS__HOSTNAME=127.0.0.1
+      - REDIS__PORT=6379
+      - ELASTICSEARCH__URL=http://127.0.0.1:9200
+      - MINIO__ENDPOINT=127.0.0.1
+      - MINIO__PORT=9000
+      - MINIO__USE_SSL=false
+      - MINIO__ACCESS_KEY=${MINIO_ROOT_USER}
+      - MINIO__SECRET_KEY=${MINIO_ROOT_PASSWORD}
+      - RABBITMQ__HOSTNAME=127.0.0.1
+      - RABBITMQ__PORT=5672
+      - RABBITMQ__PORT_MANAGEMENT=15672
+      - RABBITMQ__MANAGEMENT_SSL=false
+      - RABBITMQ__USERNAME=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ__PASSWORD=${RABBITMQ_DEFAULT_PASS}
+      - SMTP__HOSTNAME=${SMTP_HOSTNAME}
+      - SMTP__PORT=25
+      - PROVIDERS__LOCAL__STRATEGY=LocalStrategy
+#      - HTTP_PROXY=http://seuproxy:8080
+#      - HTTPS_PROXY=http://seuproxy:8080
+    restart: always
+    network_mode: host
+    depends_on:
+      - redis
+      - minio
+      - rabbitmq
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 8G
+
+  worker1:
+    image: opencti/worker:6.1.12
+    environment:
+      - OPENCTI_URL=http://127.0.0.1:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - WORKER_LOG_LEVEL=info
+#      - HTTP_PROXY=http://seuproxy:8080
+#      - HTTPS_PROXY=http://seuproxy:8080
+    depends_on:
+      - opencti
+    network_mode: host
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+
+  connector-export-report-pdf:
+    image: opencti/connector-export-report-pdf:6.2.4
+    environment:
+      - OPENCTI_URL=http://127.0.0.1:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=2271377c-a6f8-447c-b5b2-0d8e432bc2e9
+      - CONNECTOR_NAME=ExportReportPdf
+      - CONNECTOR_SCOPE=application/pdf
+      - CONNECTOR_CONFIDENCE_LEVEL=100 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=error
+      - EXPORT_REPORT_PDF_PRIMARY_COLOR=#c8d6e5 # The primary color for the output pdf
+      - EXPORT_REPORT_PDF_SECONDARY_COLOR=#222f3e # The secondary color for the output pdf
+      - EXPORT_REPORT_PDF_COMPANY_ADDRESS_LINE_1=Rede D'Or São Luiz # The first line of your company address
+      - EXPORT_REPORT_PDF_COMPANY_ADDRESS_LINE_2=SulAmérica Seguros
+      - EXPORT_REPORT_PDF_COMPANY_ADDRESS_LINE_3=
+      - EXPORT_REPORT_PDF_COMPANY_PHONE_NUMBER=wallacepalace@gmail.com # The phone number of your company
+      - EXPORT_REPORT_PDF_COMPANY_EMAIL=wallacepalace@gmail.com # The email of your company
+      - EXPORT_REPORT_PDF_COMPANY_WEBSITE=wallacepalace@gmail.com # The website of your company
+      - EXPORT_REPORT_PDF_INDICATORS_ONLY=false # Whether or not to only include Observables that are Indicators in the report
+      - EXPORT_REPORT_PDF_DEFANG_URLS=true # Replace http in Url observables with hxxp
+    network_mode: host
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+
+########## CONECTORES CUSTOM #########
+
+  connector-crowdstrike:
+    image: opencti/connector-crowdstrike:6.1.12
+    environment:
+      - OPENCTI_URL=http://127.0.0.1:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=7b29bdcc-4455-4051-8c2b-3fd5e69f120b
+      - CONNECTOR_NAME=CrowdStrike
+      - CONNECTOR_SCOPE=crowdstrike
+      - CONNECTOR_LOG_LEVEL=error
+      - CROWDSTRIKE_BASE_URL=https://api.crowdstrike.com
+      - CROWDSTRIKE_CLIENT_ID=SEUID
+      - CROWDSTRIKE_CLIENT_SECRET=SUASECRET
+      - CROWDSTRIKE_TLP=Amber
+      - CROWDSTRIKE_CREATE_OBSERVABLES=true
+      - CROWDSTRIKE_CREATE_INDICATORS=true
+      - CROWDSTRIKE_SCOPES=actor,report,indicator,yara_master
+      - CROWDSTRIKE_ACTOR_START_TIMESTAMP=0
+      - CROWDSTRIKE_REPORT_START_TIMESTAMP=0
+      - CROWDSTRIKE_REPORT_STATUS=New
+      - CROWDSTRIKE_REPORT_INCLUDE_TYPES=notice,tipper,intelligence report,periodic report
+      - CROWDSTRIKE_REPORT_TYPE=threat-report
+      - CROWDSTRIKE_REPORT_GUESS_MALWARE=false
+      - CROWDSTRIKE_INDICATOR_START_TIMESTAMP=0
+      - CROWDSTRIKE_INDICATOR_EXCLUDE_TYPES=hash_ion,hash_md5,hash_sha1
+      - CROWDSTRIKE_INDICATOR_LOW_SCORE=20
+      - CROWDSTRIKE_INDICATOR_LOW_SCORE_LABELS=MaliciousConfidence/Low
+      - CROWDSTRIKE_INTERVAL_SEC=360
+#      - HTTP_PROXY=http://seuproxy:8080
+#      - HTTPS_PROXY=http://seuproxy:8080
+    restart: always
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  connector-alienvault:
+    image: opencti/connector-alienvault:6.1.12
+    environment:
+      - OPENCTI_URL=http://127.0.0.1:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=b1e8a41a-a5f9-4adb-a3f2-c5d83a9462ee
+      - CONNECTOR_NAME=AlienVault
+      - CONNECTOR_SCOPE=alienvault
+      - CONNECTOR_CONFIDENCE_LEVEL=15
+      - CONNECTOR_LOG_LEVEL=error
+      - ALIENVAULT_BASE_URL=https://otx.alienvault.com
+      - ALIENVAULT_API_KEY=SUAAPI-OTX
+      - ALIENVAULT_TLP=White
+      - ALIENVAULT_CREATE_OBSERVABLES=true
+      - ALIENVAULT_CREATE_INDICATORS=true
+      - ALIENVAULT_PULSE_START_TIMESTAMP=2023-01-01T00:00:00
+      - ALIENVAULT_REPORT_TYPE=threat-report
+      - ALIENVAULT_REPORT_STATUS=New
+      - ALIENVAULT_GUESS_MALWARE=true
+      - ALIENVAULT_GUESS_CVE=true
+      - ALIENVAULT_EXCLUDED_PULSE_INDICATOR_TYPES=FileHash-MD5,FileHash-SHA1
+      - ALIENVAULT_ENABLE_RELATIONSHIPS=true
+      - ALIENVAULT_ENABLE_ATTACK_PATTERNS_INDICATES=true
+      - ALIENVAULT_INTERVAL_SEC=360
+#      - HTTP_PROXY=http://seuproxy:8080
+#      - HTTPS_PROXY=http://seuproxy:8080
+    restart: always
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  connector-stopforumspam:
+    image: opencti/connector-stopforumspam:6.1.12
+    environment:
+      - OPENCTI_URL=http://127.0.0.1:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=ce9f8b98-38ca-435c-90fe-c5f7d246358c
+      - CONNECTOR_NAME=Stopforumspam
+      - CONNECTOR_SCOPE=stopforumspam
+      - CONNECTOR_CONFIDENCE_LEVEL=60
+      - CONNECTOR_LOG_LEVEL=error
+      - STOPFORUMSPAM_URL=https://www.stopforumspam.com/downloads/toxic_domains_whole_filtered_50000.txt
+      - STOPFORUMSPAM_CREATE_INDICATORS=true
+      - STOPFORUMSPAM_INTERVAL=2
+#      - HTTP_PROXY=http://seuproxy:8080
+#      - HTTPS_PROXY=http://seuproxy:8080
+    restart: always
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  connector-ransomware:
+    image: opencti/connector-ransomwarelive:6.1.12
+    container_name: ransomware-connector
+    environment:
+      - CONNECTOR_NAME=Ransomware Connector
+      - CONNECTOR_SCOPE=stix2
+      - OPENCTI_URL=http://127.0.0.1:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=fc1e7e91-e07d-4b2a-971b-d81b2765e05f
+      - CONNECTOR_CONFIDENCE_LEVEL=100
+      - CONNECTOR_LOG_LEVEL=info
+      - CONNECTOR_RUN_EVERY=300s
+      - CONNECTOR_UPDATE_EXISTING_DATA=true
+      - CONNECTOR_PULL_HISTORY=true
+      - CONNECTOR_HISTORY_START_YEAR=2020
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+#      - HTTP_PROXY=http://seuproxy:8080
+#      - HTTPS_PROXY=http://seuproxy:8080
+    restart: always
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  connector-cisa-known-exploited-vulnerabilities:
+    image: opencti/connector-cisa-known-exploited-vulnerabilities:6.1.12
+    environment:
+      - OPENCTI_URL=http://127.0.0.1:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=b3a15833-df99-4d3b-bd0e-86a9bcf9a691
+      - CONNECTOR_NAME=CISA
+      - CONNECTOR_SCOPE=cisa
+      - CONNECTOR_RUN_AND_TERMINATE=false
+      - CONNECTOR_LOG_LEVEL=error
+      - CISA_CATALOG_URL=https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+      - CISA_CREATE_INFRASTRUCTURES=true
+      - CISA_TLP=TLP:CLEAR
+      - CISA_INTERVAL=2
+#      - HTTP_PROXY=http://seuproxy:8080
+#      - HTTPS_PROXY=http://seuproxy:8080
+    restart: always
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  connector-abuseipdb-ipblacklist:
+    image: opencti/connector-abuseipdb-ipblacklist:6.1.12
+    environment:
+      - OPENCTI_URL=http://127.0.0.1:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=b3ef33fb-6571-4aaa-a5e7-c306d838c0ce
+      - CONNECTOR_NAME=AbuseIPDB IP Blacklist
+      - CONNECTOR_SCOPE=abuseipdb
+      - CONNECTOR_LOG_LEVEL=error
+      - ABUSEIPDB_URL=https://api.abuseipdb.com/api/v2/blacklist
+      - ABUSEIPDB_API_KEY=SUAAPI
+      - ABUSEIPDB_SCORE=100
+      - ABUSEIPDB_LIMIT=10000
+      - ABUSEIPDB_INTERVAL=2
+#      - HTTP_PROXY=http://seuproxy:8080
+#      - HTTPS_PROXY=http://seuproxy:8080
+    restart: always
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  connector-cve:
+    image: opencti/connector-cve:6.1.12
+    environment:
+      - OPENCTI_URL=http://127.0.0.1:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=4a79537a-9b3a-4258-a8ae-55f5faf3bc9a
+      - CONNECTOR_NAME=Common Vulnerabilities and Exposures
+      - CONNECTOR_SCOPE=identity,vulnerability
+      - CONNECTOR_RUN_AND_TERMINATE=false
+      - CONNECTOR_LOG_LEVEL=error
+      - CVE_BASE_URL=https://services.nvd.nist.gov/rest/json/cves
+      - CVE_API_KEY=813ad80f-ec9a-40b4-a991-7377bb49fcad
+      - CVE_INTERVAL=2
+      - CVE_MAX_DATE_RANGE=120
+      - CVE_MAINTAIN_DATA=true
+      - CVE_PULL_HISTORY=false
+      - CVE_HISTORY_START_YEAR=2019
+#      - HTTP_PROXY=http://seuproxy:8080
+#      - HTTPS_PROXY=http://seuproxy:8080
+    restart: always
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  connector-mitre-atlas:
+    image: opencti/connector-mitre-atlas:6.1.12
+    environment:
+      - OPENCTI_URL=http://127.0.0.1:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=6a0b2fc7-02a3-430f-b1ab-6c3a9f3e85c4
+      - CONNECTOR_NAME=MITRE ATLAS
+      - CONNECTOR_SCOPE=identity,attack-pattern,course-of-action,relationship,x-mitre-collection,x-mitre-matrix,x-mitre-tactic
+      - CONNECTOR_CONFIDENCE_LEVEL=75
+      - CONNECTOR_RUN_AND_TERMINATE=false
+      - CONNECTOR_LOG_LEVEL=error
+      - MITRE_ATLAS_URL=https://raw.githubusercontent.com/mitre-atlas/atlas-navigator-data/main/dist/stix-atlas.json
+      - MITRE_ATLAS_INTERVAL=7
+#      - HTTP_PROXY=http://seuproxy:8080
+#      - HTTPS_PROXY=http://seuproxy:8080
+    restart: always
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  connector-mitre:
+    image: opencti/connector-mitre:6.1.12
+    environment:
+      - OPENCTI_URL=http://127.0.0.1:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=c2d4fe13-438d-4363-9854-d459ab21500f
+      - CONNECTOR_NAME=MITRE Datasets
+      - CONNECTOR_SCOPE=tool,report,malware,identity,campaign,intrusion-set,attack-pattern,course-of-action,x-mitre-data-source,x-mitre-data-component,x-mitre-matrix,x-mitre-tactic,x-mitre-collection
+      - CONNECTOR_CONFIDENCE_LEVEL=75
+      - CONNECTOR_UPDATE_EXISTING_DATA=false
+      - CONNECTOR_RUN_AND_TERMINATE=false
+      - CONNECTOR_LOG_LEVEL=error
+      - MITRE_REMOVE_STATEMENT_MARKING=true
+      - MITRE_INTERVAL=7
+#      - HTTP_PROXY=http://seuproxy:8080
+#      - HTTPS_PROXY=http://seuproxy:8080
+    restart: always
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+volumes:
+  esdata:
+  redisdata:
+  s3data:
+  amqpdata:
