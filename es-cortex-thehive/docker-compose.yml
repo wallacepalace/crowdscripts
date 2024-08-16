@@ -1,0 +1,44 @@
+# Wallace Alves
+# Elastic + Cortex + TheHive (Simplificado)
+
+version: '3.7'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.9.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+  cortex:
+    image: thehiveproject/cortex:latest
+    environment:
+      - job_directory=/opt/cortex/jobs
+    volumes:
+      - cortexdata:/opt/cortex/jobs
+      - cortexlogs:/var/log/cortex
+    ports:
+      - "9001:9001"
+    depends_on:
+      - elasticsearch
+
+  thehive:
+    image: thehiveproject/thehive:latest
+    environment:
+      - THEHIVE_ELASTICSEARCH__URL=http://elasticsearch:9200
+    volumes:
+      - thehivedata:/opt/thehive
+    ports:
+      - "9000:9000"
+    depends_on:
+      - elasticsearch
+
+volumes:
+  esdata:
+  cortexdata:
+  cortexlogs:
+  thehivedata:
