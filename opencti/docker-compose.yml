@@ -144,8 +144,8 @@ services:
       - CONNECTOR_LOG_LEVEL=error
       - EXPORT_REPORT_PDF_PRIMARY_COLOR=#c8d6e5 # The primary color for the output pdf
       - EXPORT_REPORT_PDF_SECONDARY_COLOR=#222f3e # The secondary color for the output pdf
-      - EXPORT_REPORT_PDF_COMPANY_ADDRESS_LINE_1=Rede D'Or São Luiz # The first line of your company address
-      - EXPORT_REPORT_PDF_COMPANY_ADDRESS_LINE_2=SulAmérica Seguros
+      - EXPORT_REPORT_PDF_COMPANY_ADDRESS_LINE_1=SUAEMPRESA
+      - EXPORT_REPORT_PDF_COMPANY_ADDRESS_LINE_2=SUAEMPRESA
       - EXPORT_REPORT_PDF_COMPANY_ADDRESS_LINE_3=
       - EXPORT_REPORT_PDF_COMPANY_PHONE_NUMBER=wallacepalace@gmail.com # The phone number of your company
       - EXPORT_REPORT_PDF_COMPANY_EMAIL=wallacepalace@gmail.com # The email of your company
