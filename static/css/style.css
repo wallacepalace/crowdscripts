@@ -1,0 +1,257 @@
+/* Material Design Dark Theme - Inspired by CrowdStrike */
+
+/* Color Palette */
+:root {
+    --md-primary: #D32F2F; /* Red 700 */
+    --md-secondary: #00897B; /* Teal 600 */
+    --md-accent: #00E5FF; /* Cyan A400 */
+    --md-background: #121212; /* Very Dark Grey */
+    --md-surface: #1E1E1E; /* Slightly lighter dark grey for cards/surfaces */
+    --md-on-background: #FFFFFF; /* White for high-emphasis text on background */
+    --md-on-surface: #FFFFFF; /* White for high-emphasis text on surface */
+    --md-on-surface-medium: #B0B0B0; /* Light Grey for medium-emphasis text */
+    --md-on-surface-disabled: #666666; /* Dark Grey for disabled/hint text */
+    --md-border: #303030; /* Subtle border color */
+    --md-success: #28a745; /* Green for success */
+    --md-warning: #ffc107; /* Yellow for warning */
+    --md-error: #dc3545; /* Red for error */
+}
+
+/* General Body Styles */
+body {
+    font-family: 'Roboto', sans-serif; /* Material Design font */
+    background-color: var(--md-background);
+    color: var(--md-on-background);
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+    background-color: var(--md-surface);
+    padding: 20px 40px;
+    border-radius: 8px; /* Softer corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Material Design shadow */
+    border: 1px solid var(--md-border);
+}
+
+/* Header Styles */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--md-border);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.logo {
+    height: 50px; /* Slightly larger logo */
+    width: auto;
+    filter: none; /* Remove filter for PNG */
+}
+
+header .md-btn {
+    font-size: 18px; /* Tamanho da fonte ajustado */
+    font-weight: 700;
+    color: #000000; /* Texto preto */
+    background-color: #ffffff; /* Fundo branco */
+    padding: 10px 18px; /* Padding para dar volume */
+    border-radius: 8px; /* Bordas arredondadas */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+    pointer-events: none; /* Não clicável */
+    opacity: 1;
+}
+
+/* Controls and Buttons */
+.controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.button, #refresh-button, #alert-button {
+    background-color: var(--md-primary); /* Primary color for action buttons */
+    color: var(--md-on-background);
+    padding: 12px 20px;
+    border: none; /* No border for Material Design buttons */
+    border-radius: 4px; /* Standard Material Design button radius */
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500; /* Medium weight */
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Subtle shadow */
+}
+
+.button:hover, #refresh-button:hover, #alert-button:hover {
+    background-color: #E53935; /* Slightly lighter red on hover */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Increased shadow on hover */
+}
+
+.button:disabled, #refresh-button:disabled, #alert-button:disabled {
+    background-color: var(--md-on-surface-disabled);
+    color: var(--md-on-surface-medium);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Status and Progress Bar */
+.status-container {
+    margin-bottom: 20px;
+    background-color: var(--md-surface);
+    padding: 15px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    border: 1px solid var(--md-border);
+}
+
+#progress-bar-container {
+    width: 100%;
+    background-color: var(--md-border);
+    border-radius: 4px;
+    overflow: hidden;
+    height: 8px; /* Thinner progress bar */
+}
+
+#progress-bar {
+    width: 0%;
+    height: 100%;
+    background-color: var(--md-accent); /* Accent color for progress */
+    border-radius: 4px;
+    transition: width 0.5s ease-in-out;
+}
+
+#status-message {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--md-on-surface-medium);
+}
+
+/* Table Styles */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    background-color: var(--md-surface);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--md-border);
+}
+
+#logs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    table-layout: auto;
+}
+
+#logs-table th, #logs-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--md-border);
+    white-space: nowrap;
+    color: var(--md-on-surface);
+}
+
+#logs-table th {
+    background-color: #2A2A2A; /* Slightly darker header for contrast */
+    font-weight: 600;
+    color: var(--md-on-surface);
+}
+
+/* Specific column widths for better layout */
+#logs-table th:nth-child(1), #logs-table td:nth-child(1) { /* Domínio */
+    white-space: normal;
+    word-wrap: break-word;
+    min-width: 200px;
+}
+
+#logs-table th:nth-child(2), #logs-table td:nth-child(2) { /* Emitido Em */
+    min-width: 120px;
+}
+
+#logs-table th:nth-child(3), #logs-table td:nth-child(3) { /* Vence Em */
+    min-width: 120px;
+}
+
+#logs-table th:nth-child(4), #logs-table td:nth-child(4) { /* Email */
+    white-space: normal;
+    word-wrap: break-word;
+    min-width: 180px;
+}
+
+#logs-table th:nth-child(5), #logs-table td:nth-child(5) { /* Porta */
+    min-width: 80px;
+}
+
+#logs-table th:nth-child(6), #logs-table td:nth-child(6) { /* Autoridade Certificadora */
+    white-space: normal;
+    word-wrap: break-word;
+    min-width: 200px;
+}
+
+
+#logs-table tbody tr:nth-child(odd) {
+    background-color: #242424; /* Slightly darker surface for odd rows */
+}
+
+#logs-table tbody tr:nth-child(even) {
+    background-color: var(--md-surface); /* Base surface color for even rows */
+}
+
+#logs-table tbody tr:hover {
+    background-color: #3A3A3A; /* Lighter dark on hover */
+}
+
+/* Status Colors for Vencimento */
+td[style*="color: green"] { color: var(--md-success) !important; }
+td[style*="color: orange"] { color: var(--md-warning) !important; }
+td[style*="color: red"] { color: var(--md-error) !important; }
+td[style*="color: black"] { color: var(--md-on-surface-medium) !important; } /* Default/Error color */
+
+
+/* Footer Styles */
+footer {
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid var(--md-border);
+    text-align: center;
+    font-size: 12px;
+    color: var(--md-on-surface-medium);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .button, #refresh-button, #alert-button {
+        width: 100%;
+        text-align: center;
+    }
+
+    #logs-table {
+        font-size: 12px;
+    }
+
+    #logs-table th, #logs-table td {
+        padding: 8px 10px;
+    }
+}

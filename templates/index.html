@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Resolver - Monitor de Certificados</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/claudinho.png') }}" type="image/svg+xml">
+</head>
+<style>
+.md-btn {
+  background: #ffffff !important; /* Fundo branco explícito */
+  color: #000000 !important; /* Letras pretas explícitas */
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px; /* Bordas levemente arredondadas */
+  font: 600 14px/1.1 system-ui;
+  pointer-events: none; /* Não clicável */
+  opacity: 1; /* Removida opacidade para garantir visibilidade */
+}
+</style>
+<body>
+    <div class="container">
+        <header>
+            <img src="{{ url_for('static', filename='images/claudinho.png') }}" 
+             alt="Logo Claudinho" 
+             class="logo" 
+             style="width: 7%; height: auto;">
+            <button class="md-btn">DNS RESOLVER</button>
+            
+        </header>
+        <div class="controls">
+            <button id="refresh-button">Atualizar Dados (Últimos 7 Dias)</button>
+            <a href="/export-csv" class="button">Exportar para CSV</a>
+            <button id="alert-button" class="button">Alertar Vencimentos</button>
+        </div>
+        
+        <div id="status-container" class="status-container" style="display:none;">
+            <div id="progress-bar-container">
+                <div id="progress-bar"></div>
+            </div>
+            <p id="status-message"></p>
+        </div>
+
+        <div class="table-container">
+            <table id="logs-table">
+                <thead>
+                    <tr>
+                        <th>DOMÍNIO</th>
+                        <th>EMITIDO EM</th>
+                        <th>VENCE EM</th>
+                        <th>EMAIL</th>
+                        <th>PORTA</th>
+                        <th>AUTORIDADE CERTIFICADORA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cert_data %}
+                    <tr>
+                        <td>{{ item.dominio }}</td>
+                        <td>{{ item.emitido_em }}</td>
+                        <td style="color: {{ item.status_color }};">{{ item.vence_em }}</td>
+                        <td>{{ item.email }}</td>
+                        <td>{{ item.porta }}</td>
+                        <td>{{ item.autoridade_certificadora }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <footer>
+            <p>Qualquer dúvida: wallace.palves@rededor.com.br ou (21) 97009-3729</p>
+        </footer>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
