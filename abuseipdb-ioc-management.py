@@ -1,6 +1,6 @@
 # Puxa os IPs maliciosos do AbuseIPDB, salva num arquivo e abastece o IOC Management do CrowdStrike
-# Obs: coleta sempre de 2 em 2 horas no AbuseIPDB, é o tempo de corte... além disso, se tiverem IPs duplicados, tem a função de remover duplicados
-# Não esqueça de mudar de US-1 para US-2 ou GOV para a chamada da API do CrowdStrike, dependendo da sua console
+# Obs.: a coleta no AbuseIPDB é sempre de 2 em 2 horas (esse é o tempo de corte). Além disso, IPs duplicados são removidos
+# Não se esqueça de trocar US-1 por US-2 ou GOV na chamada da API do CrowdStrike, dependendo da sua console
 # Wallace Alves
 
 import requests

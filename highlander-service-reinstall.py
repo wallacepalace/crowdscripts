@@ -1,4 +1,4 @@
-# Cria um serviço persistente que mantém outro serviço startado mesmo sendo fechado manualmente por alguém, esse script refaz a instalação caso alguém desinstale
+# Cria um serviço persistente que mantém outro serviço em execução, mesmo que alguém o feche manualmente; este script também refaz a instalação caso alguém desinstale o software
 # Você pode usar as condições do outro script highlander para checar o status do serviço
 # Utilize o pyexec/pyinstaller para criar um executável para Windows
 
@@ -58,4 +58,4 @@ while True:
         time.sleep(60)  # Dá tempo para a instalação ser concluída
         iniciar_servico(highlander_service)
 
-    time.sleep(10)  # Fica verificando a cada 10 secs o estado do serviço...
+    time.sleep(10)  # Verifica o estado do serviço a cada 10 segundos

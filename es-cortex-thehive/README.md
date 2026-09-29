@@ -1,6 +1,6 @@
 # Elastic + Cortex + TheHive
 
-Postar esse compose surgiu da necessidade de ajudar a comunidade de alguma forma com respostas a incidentes e integrações com CrowdStrike e outras ferramentas de segurança.
+A ideia de publicar este compose surgiu da vontade de ajudar a comunidade de alguma forma com resposta a incidentes e integrações com a CrowdStrike e outras ferramentas de segurança.
 
 ## Serviços
 
@@ -9,9 +9,9 @@ Postar esse compose surgiu da necessidade de ajudar a comunidade de alguma forma
 - **Imagem**: `docker.elastic.co/elasticsearch/elasticsearch:8.9.2`
 - **Descrição**: O Elasticsearch é um mecanismo de busca e análise distribuído, utilizado para armazenar e buscar grandes volumes de dados.
 - **Ambiente**:
-  - `discovery.type=single-node`: Configura o Elasticsearch para operar em um modo de nó único.
-  - `xpack.security.enabled=false`: Desativa a segurança do X-Pack, útil para ambientes de teste.
-- **Portas**: 
+  - `discovery.type=single-node`: Configura o Elasticsearch para operar como nó único.
+  - `xpack.security.enabled=false`: Desativa a segurança do X-Pack (útil para ambientes de teste).
+- **Portas**:
   - `9200:9200`: Mapeia a porta 9200 do container para a porta 9200 do host.
 - **Volumes**:
   - `esdata:/usr/share/elasticsearch/data`: Volume para persistência de dados do Elasticsearch.

@@ -1,5 +1,5 @@
-# Extrai IPs de qualquer documento e ordena IP linha por linha
-# Você só precisa colocar o texto todo que contém os IPs dentro de um arquivo "ips.txt", qualquer coisa pode trocar o nome se quiser dentro do "with open('ips.txt'...)"
+# Extrai IPs de qualquer documento e os ordena, um IP por linha
+# Basta colocar todo o texto que contém os IPs em um arquivo "ips.txt". Se quiser, troque o nome do arquivo em "with open('ips.txt'...)"
 # Wallace Alves
 
 import re

@@ -1,4 +1,4 @@
-# Cria um serviço persistente que mantém outro serviço startado mesmo sendo fechado manualmente por alguém
+# Cria um serviço persistente que mantém outro serviço em execução, mesmo que alguém o feche manualmente
 # Esse apenas mantém o serviço highlander
 # Para checar o status a cada 3 segundos, é utilizado um ping para o DNS do cloudflare (1.1.1.1) - OBS: esse check pode ser alterado para o que você quiser
 # Utilize o pyexec/pyinstaller para criar um executável para Windows
