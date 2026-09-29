@@ -1,5 +1,5 @@
 # ------------ README -------------------------------------
-# Não esquece de instalar os "pip install flask requests"
+# Não se esqueça de instalar as dependências: "pip install flask requests"
 # Don't forget to install "pip install flask requests"
 # Change vars:
 # If console us-1, us-2, gov, change in "auth_url"

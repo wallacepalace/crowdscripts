@@ -1,19 +1,17 @@
-> Este script é usado para configurar um ambiente de inicialização segura (Safe Boot) com rede no Windows, executar scripts PowerShell para remover arquivos relacionados ao CrowdStrike, restaurar configurações de inicialização normais e copiar um script de restauração para a área de trabalho de todos os usuários. Vamos analisar cada parte do script:
+> Este script é usado para configurar a inicialização segura (Safe Boot) com rede no Windows, executar scripts PowerShell que removem arquivos relacionados ao CrowdStrike, restaurar as configurações normais de inicialização e copiar um script de restauração para a área de trabalho de todos os usuários. Vamos analisar cada parte do script:
 
-- 1 - Habilitar Safe Boot com Rede:
+### 1. Habilitar o Safe Boot com rede
 
-```cmd
-Copiar código
+```bat
 @echo off
 REM Habilitar Safe Boot com Rede
 bcdedit /set {current} safeboot network
 ```
-> Este comando habilita a inicialização segura (Safe Boot) com suporte de rede para a configuração atual do sistema.
+> Este comando habilita a inicialização segura (Safe Boot) com suporte a rede na configuração de boot atual do sistema.
 
-- 2 - Criar script PowerShell para remover arquivos do CrowdStrike:
+### 2. Criar script PowerShell para remover arquivos do CrowdStrike
 
-```cmd
-Copiar código
+```bat
 REM Criar script PowerShell para remover arquivos
 echo $path = "C:\Windows\System32\drivers\CrowdStrike" > C:\RemoveCrowdStrike.ps1
 echo if (Test-Path $path) { >> C:\RemoveCrowdStrike.ps1
@@ -27,12 +25,11 @@ echo } else { >> C:\RemoveCrowdStrike.ps1
 echo     Write-Output "Nao achei: $path" >> C:\RemoveCrowdStrike.ps1
 echo } >> C:\RemoveCrowdStrike.ps1
 ```
-> Esta seção cria um script PowerShell RemoveCrowdStrike.ps1 que verifica a existência do diretório C:\Windows\System32\drivers\CrowdStrike, remove arquivos com o padrão C-00000291*.sys, e escreve mensagens de saída conforme a operação é realizada.
+> Esta seção cria o script PowerShell `RemoveCrowdStrike.ps1`, que verifica se o diretório `C:\Windows\System32\drivers\CrowdStrike` existe, remove os arquivos com o padrão `C-00000291*.sys` e escreve mensagens de saída conforme a operação é realizada.
 
-- 3 - Criar script PowerShell para restaurar configurações de boot:
+### 3. Criar script PowerShell para restaurar configurações de boot
 
-```cmd
-Copiar código
+```bat
 REM Criar script PowerShell para restaurar configurações de boot
 echo # Set the execution policy to Bypass for the current session > C:\RestoreBoot.ps1
 echo Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force >> C:\RestoreBoot.ps1
@@ -43,12 +40,11 @@ echo Start-Process -FilePath "reg.exe" -ArgumentList 'add "HKLM\SOFTWARE\Microso
 echo # Restart the machine >> C:\RestoreBoot.ps1
 echo Start-Process -FilePath "shutdown.exe" -ArgumentList '/r /t 0' -Wait >> C:\RestoreBoot.ps1
 ```
-> Esta seção cria um script PowerShell RestoreBoot.ps1 que remove a configuração de Safe Boot, restaura a chave de registro Userinit para seu valor padrão e reinicia a máquina.
+> Esta seção cria o script PowerShell `RestoreBoot.ps1`, que remove a configuração de Safe Boot, restaura a chave de registro `Userinit` para o valor padrão e reinicia a máquina.
 
-- 4 - Copiar o script de restauração para a área de trabalho de todos os usuários:
+### 4. Copiar o script de restauração para a área de trabalho de todos os usuários
 
-```cmd
-Copiar código
+```bat
 REM Copiar RestoreBoot.ps1 para a área de trabalho de todos os usuários
 for /d %%i in (C:\Users\*) do (
     if exist "%%i\Desktop" (
@@ -56,12 +52,11 @@ for /d %%i in (C:\Users\*) do (
     )
 )
 ```
-> Este loop copia o script RestoreBoot.ps1 para a área de trabalho de todos os usuários no sistema, nomeando-o como INICIA NORMAL.ps1.
+> Este loop copia o script `RestoreBoot.ps1` para a área de trabalho de todos os usuários do sistema, com o nome `INICIA NORMAL.ps1`.
 
-- 5 - Criar script PowerShell para checar Safe Boot e rodar RestoreBoot:
+### 5. Criar script PowerShell para checar Safe Boot e rodar RestoreBoot
 
-```cmd
-Copiar código
+```bat
 REM Criar script PowerShell para checar Safe Boot e rodar RestoreBoot
 echo Start-Sleep -Seconds 120 > C:\CheckSafeBoot.ps1
 echo $safeMode = Get-ItemPropertyValue "HKLM:\SYSTEM\CurrentControlSet\Control\SafeBoot\Option" -Name OptionValue >> C:\CheckSafeBoot.ps1
@@ -69,24 +64,22 @@ echo if ($safeMode -eq 2) { >> C:\CheckSafeBoot.ps1
 echo     Start-Process powershell -ArgumentList '-ExecutionPolicy Bypass -File C:\RestoreBoot.ps1' >> C:\CheckSafeBoot.ps1
 echo } >> C:\CheckSafeBoot.ps1
 ```
-> Este script CheckSafeBoot.ps1 aguarda 120 segundos, verifica se o sistema está em modo de inicialização segura (Safe Boot) e, se estiver, executa o script RestoreBoot.ps1.
+> O script `CheckSafeBoot.ps1` aguarda 120 segundos, verifica se o sistema está no modo de inicialização segura (Safe Boot) e, se estiver, executa o script `RestoreBoot.ps1`.
 
-- 6 - Modificar a chave de registro Userinit para rodar RemoveCrowdStrike.ps1 na tela de login:
+### 6. Modificar a chave de registro Userinit para rodar RemoveCrowdStrike.ps1 no logon
 
-```cmd
-Copiar código
+```bat
 REM Modificar chave de registro Userinit para rodar RemoveCrowdStrike.ps1 na tela de login
 reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v Userinit /t REG_SZ /d "cmd.exe /c powershell.exe -ExecutionPolicy Bypass -File C:\RemoveCrowdStrike.ps1 && powershell.exe -ExecutionPolicy Bypass -File C:\CheckSafeBoot.ps1" /f
 ```
-> Este comando modifica a chave de registro Userinit para que, ao iniciar a sessão, os scripts RemoveCrowdStrike.ps1 e CheckSafeBoot.ps1 sejam executados.
+> Este comando modifica a chave de registro `Userinit` para que, ao iniciar a sessão, os scripts `RemoveCrowdStrike.ps1` e `CheckSafeBoot.ps1` sejam executados.
 
-- 7 - Reiniciar a máquina:
+### 7. Reiniciar a máquina
 
-```cmd
-Copiar código
+```bat
 REM Reiniciar a máquina
 shutdown /r /t 0
 ```
 > Finalmente, este comando reinicia a máquina imediatamente para aplicar as alterações.
 
-> Este script automatiza o processo de remoção de arquivos específicos do CrowdStrike em um ambiente de inicialização segura e, em seguida, restaura as configurações de inicialização normais e reinicia o sistema.
+> Em resumo, o script automatiza a remoção de arquivos específicos do CrowdStrike no modo de inicialização segura e, em seguida, restaura as configurações normais de inicialização e reinicia o sistema.

@@ -1,9 +1,9 @@
 # Wallace Alves
 # Se o script rodar em um determinado momento que um usuario nao tenha seu perfil criado ainda
-# o script só ira remover as permissoes de usuarios anteriormente criados, portanto criei o bloco de comandos abaixo
-# para schedullar o script para todo usuario que logar no sistema
+# o script só irá remover as permissoes dos usuarios criados anteriormente; por isso criei o bloco de comandos abaixo
+# para agendar o script para todo usuario que fizer logon no sistema
 
-# Cria a tarefa agendada para executar o script sempre que um usuario novo crie perfil na maquina
+# Cria a tarefa agendada para executar o script sempre que um usuario novo criar perfil na maquina
 
 $taskName = "ExecuteScriptAtLogin"
 $scriptPath = "C:\recext.ps1"
@@ -11,7 +11,7 @@ $action = New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-WindowSt
 $trigger = New-ScheduledTaskTrigger -AtLogon
 $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
 Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Principal $principal
-Write-Host "Tarefa agendada schedullada no sistema"
+Write-Host "Tarefa agendada criada no sistema"
 
 # Script que remove as permissoes
 

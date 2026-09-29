@@ -1,6 +1,6 @@
 # Wallace Alves - (21) 97009-3729
 # Script para forçar atualização do Google Chrome, Microsoft Edge e Adobe Acrobat Reader em segundo plano
-# Cria taskschedulles do Chrome: 9h, Edge: 10h, Adobe Reader: 10:30h (semanalmente, a cada 7 dias, às segundas-feiras)
+# Cria tarefas agendadas para o Chrome (9h), o Edge (10h) e o Adobe Reader (10h30), semanalmente, às segundas-feiras
 
 # 1. Configura execução em segundo plano criando um script temp VBS
 $vbsScript = @"

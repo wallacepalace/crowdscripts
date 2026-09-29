@@ -5,7 +5,7 @@ REM Usuario e senha privilegiada
 set USER=seuUsuario
 set PASS=suaSenha
 
-REM Caminho para o arquivo de IPs das maquinas q vc quer acertar
+REM Caminho para o arquivo com os IPs das maquinas que voce quer atingir
 set IP_LIST=ip_list.txt
 
 REM Caminho para o script a ser executado remotamente
