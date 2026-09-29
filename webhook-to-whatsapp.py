@@ -88,7 +88,7 @@ def send_to_whatsapp(alert_data):
         
     except requests.exceptions.RequestException as e:
         print(f"Erro ao enviar para a API do WhatsApp: {e}")
-        if e.response:
+        if e.response is not None:
             print(f"Detalhes do erro: {e.response.text}")
 
 @app.route('/webhook', methods=['POST'])

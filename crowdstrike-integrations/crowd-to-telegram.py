@@ -148,7 +148,7 @@ def format_telegram_message(detection):
         f"*Severidade:* *{severity}*\n"
         f"*Sistema Operacional:* {os_version}\n"
         f"*Horário:* {escape_markdown(timestamp_brt)}\n\n"
-        f"*{'='*25}*\n\n"
+        f"*{escape_markdown('=' * 25)}*\n\n"
         f"*Detalhes do Processo*\n"
         f"*Nome do Arquivo:* `{filename}`\n"
         f"*Linha de Comando:*\n```\n{cmd_line}\n```\n\n"
