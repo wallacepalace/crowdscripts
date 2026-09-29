@@ -308,7 +308,7 @@ def get_system_whois_email(domain):
                 unique_emails = list(set(email_matches))
                 # Prioriza e-mails que contenham 'rededor.com.br' ou 'rededorsaoluiz.com.br'
                 rededor_emails = [e for e in unique_emails if 'rededor.com.br' in e or 'rededorsaoluiz.com.br' in e]
-                if redor_emails:
+                if rededor_emails:
                     return ", ".join(rededor_emails)
                 return ", ".join(unique_emails)
         
